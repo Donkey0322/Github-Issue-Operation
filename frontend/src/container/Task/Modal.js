@@ -68,6 +68,7 @@ const Modal = ({ rawData, setOpen, open, setRawData }) => {
     fetching,
     setFetching,
     setNoMoreData,
+    setError,
   } = useGit();
 
   useEffect(() => {
@@ -109,26 +110,33 @@ const Modal = ({ rawData, setOpen, open, setRawData }) => {
   };
 
   const handleSave = async () => {
-    const { title, body, label, repo, number } = editData;
-    if (
-      title.replaceAll(" ", "").length === 0 ||
-      body.replaceAll(" ", "").length === 0 ||
-      body.length < 30
-    ) {
-      if (title.replaceAll(" ", "").length === 0)
-        setErrors((prev) => ({ ...prev, title: "Title must contains words." }));
-      if (body.replaceAll(" ", "").length === 0 || body.length < 30) {
-        setErrors((prev) => ({
-          ...prev,
-          body: "Body must contains 30 words or more.",
-        }));
+    try {
+      const { title, body, label, repo, number } = editData;
+      if (
+        title.replaceAll(" ", "").length === 0 ||
+        body.replaceAll(" ", "").length === 0 ||
+        body.length < 30
+      ) {
+        if (title.replaceAll(" ", "").length === 0)
+          setErrors((prev) => ({
+            ...prev,
+            title: "Title must contains words.",
+          }));
+        if (body.replaceAll(" ", "").length === 0 || body.length < 30) {
+          setErrors((prev) => ({
+            ...prev,
+            body: "Body must contains 30 words or more.",
+          }));
+        }
+        return;
       }
-      return;
+      setFetching(true);
+      await updateIssue(repo, number, { title, body, labels: [label] });
+      setRawData(editData);
+      setFetching(false);
+    } catch {
+      setError(true);
     }
-    setFetching(true);
-    await updateIssue(repo, number, { title, body, labels: [label] });
-    setRawData(editData);
-    setFetching(false);
   };
 
   const handleCancel = () => {
@@ -137,18 +145,22 @@ const Modal = ({ rawData, setOpen, open, setRawData }) => {
   };
 
   const handleDelete = async () => {
-    const { title, body, label, repo, number } = editData;
-    setFetching(true);
-    setNoMoreData(false);
-    const deleteData = await updateIssue(repo, number, {
-      title,
-      body,
-      labels: [label],
-      state: "closed",
-    });
-    const data = await getIssue(currentPage * 10 + 1, 1);
-    setIssue(data.filter((m) => m.id !== generateData(deleteData).id));
-    handleClose();
+    try {
+      const { title, body, label, repo, number } = editData;
+      setFetching(true);
+      setNoMoreData(false);
+      const deleteData = await updateIssue(repo, number, {
+        title,
+        body,
+        labels: [label],
+        state: "closed",
+      });
+      const data = await getIssue(currentPage * 10 + 1, 1);
+      setIssue(data.filter((m) => m.id !== generateData(deleteData).id));
+      handleClose();
+    } catch {
+      setError(true);
+    }
   };
 
   const Component = editData.state

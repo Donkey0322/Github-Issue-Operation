@@ -91,4 +91,6 @@ yarn backend
     **Note:** 僅提供單一 sorting。
 11. Testing Button: 右上角的綠色新增符號可以快速隨機新增 issue。
     **Except Handling:** 若系統無偵測到公開 repo 則無法點擊。
-12. 其他還有一些防呆機制、在 issue 後台操作時的 UIUX 設計、沒有 Data 時的可愛設計等等。
+12. Error Handling: 簡單做了在任何錯誤下的 error page，但因為有各種千奇百怪的 error，所以並不會在 error 修正後（例如網路斷線恢復後）導向正常頁面，請手動調整回需求畫面。
+
+13. 其他還有一些防呆機制、在 issue 後台操作時的 UIUX 設計、沒有 Data 時的可愛設計等等。

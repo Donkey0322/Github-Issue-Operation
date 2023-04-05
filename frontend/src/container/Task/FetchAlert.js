@@ -19,13 +19,18 @@ export default function AlertDialog() {
     currentPageSize,
     setNoMoreData,
     fetching,
+    setError,
   } = useGit();
 
   const handleYes = async () => {
-    setFetching(true);
-    setNoMoreData(false);
-    const data = await getIssue(10, currentPage + 1);
-    setIssue((prev) => [...prev, ...data]);
+    try {
+      setFetching(true);
+      setNoMoreData(false);
+      const data = await getIssue(10, currentPage + 1);
+      setIssue((prev) => [...prev, ...data]);
+    } catch {
+      setError(true);
+    }
   };
 
   return (

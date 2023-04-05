@@ -57,6 +57,8 @@ const Task = () => {
     checkSearch,
     noMoreData,
     repo,
+    setError,
+    error,
   } = useGit();
   const [open, setOpen] = useState(false); //編輯頁面開關
   const [create, setCreate] = useState(false); //新增頁面開關
@@ -68,10 +70,14 @@ const Task = () => {
   };
 
   useEffect(() => {
-    if (!login) {
+    if (!login && !error) {
       navigate("/");
     }
   }, [login, navigate]);
+
+  useEffect(() => {
+    if (error) navigate("/error");
+  }, [error]);
 
   useEffect(() => {
     if (noMoreData) {
@@ -151,20 +157,24 @@ const Task = () => {
   };
 
   const RandomAddClick = async () => {
-    setFetching(true);
-    if (!noMoreData) {
-      setNoMoreData(false);
-    }
-    const newdata = await createIssue(
-      repo[Math.floor(Math.random() * repo.length)],
-      {
-        title: randomString(5),
-        body: randomString(5),
-        labels: ["Open"],
+    try {
+      setFetching(true);
+      if (!noMoreData) {
+        setNoMoreData(false);
       }
-    );
-    const data = await getIssue(currentPage * 10 - 1, 1);
-    setIssue([generateData(newdata), ...data]);
+      const newdata = await createIssue(
+        repo[Math.floor(Math.random() * repo.length)],
+        {
+          title: randomString(5),
+          body: randomString(5),
+          labels: ["Open"],
+        }
+      );
+      const data = await getIssue(currentPage * 10 - 1, 1);
+      setIssue([generateData(newdata), ...data]);
+    } catch {
+      setError(true);
+    }
   };
 
   return (

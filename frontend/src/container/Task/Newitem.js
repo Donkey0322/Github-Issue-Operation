@@ -68,6 +68,7 @@ const Newitem = ({ setOpen, open }) => {
     generateData,
     setNoMoreData,
     noMoreData,
+    setError,
   } = useGit();
 
   const handleClose = () => {
@@ -110,45 +111,52 @@ const Newitem = ({ setOpen, open }) => {
   };
 
   const handleCreate = async () => {
-    const { title, body, label, repo } = newData;
-    if (
-      title.replaceAll(" ", "").length === 0 ||
-      body.replaceAll(" ", "").length === 0 ||
-      body.length < 30 ||
-      !repo
-    ) {
-      if (title.replaceAll(" ", "").length === 0)
-        setErrors((prev) => ({ ...prev, title: "Title must contains words." }));
-      if (body.replaceAll(" ", "").length === 0 || body.length < 30) {
-        setErrors((prev) => ({
-          ...prev,
-          body: "Body must contains 30 words or more.",
-        }));
+    try {
+      const { title, body, label, repo } = newData;
+      if (
+        title.replaceAll(" ", "").length === 0 ||
+        body.replaceAll(" ", "").length === 0 ||
+        body.length < 30 ||
+        !repo
+      ) {
+        if (title.replaceAll(" ", "").length === 0)
+          setErrors((prev) => ({
+            ...prev,
+            title: "Title must contains words.",
+          }));
+        if (body.replaceAll(" ", "").length === 0 || body.length < 30) {
+          setErrors((prev) => ({
+            ...prev,
+            body: "Body must contains 30 words or more.",
+          }));
+        }
+        if (!repo) {
+          setErrors((prev) => ({
+            ...prev,
+            repo: "Please assign a repo.",
+          }));
+        }
+        return;
       }
-      if (!repo) {
-        setErrors((prev) => ({
-          ...prev,
-          repo: "Please assign a repo.",
-        }));
+      setSubmitLoad(true);
+      if (!noMoreData) {
+        setNoMoreData(false);
       }
-      return;
+      const newdata = await createIssue(repo, { title, body, labels: [label] });
+      const data = await getIssue(currentPage * 10 - 1, 1);
+      setIssue([generateData(newdata), ...data]);
+      setSubmitLoad(false);
+      setNewData({
+        title: "",
+        body: "",
+        state: "open",
+        label: "Open",
+        repo: "",
+      });
+      setOpen(false);
+    } catch {
+      setError(true);
     }
-    setSubmitLoad(true);
-    if (!noMoreData) {
-      setNoMoreData(false);
-    }
-    const newdata = await createIssue(repo, { title, body, labels: [label] });
-    const data = await getIssue(currentPage * 10 - 1, 1);
-    setIssue([generateData(newdata), ...data]);
-    setSubmitLoad(false);
-    setNewData({
-      title: "",
-      body: "",
-      state: "open",
-      label: "Open",
-      repo: "",
-    });
-    setOpen(false);
   };
 
   return (

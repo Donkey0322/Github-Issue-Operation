@@ -33,7 +33,7 @@ function ModeToggle() {
 
 export default function App() {
   const code = new URLSearchParams(useLocation().search).get("code");
-  const { cookies, setCookie, login, fetching } = useGit();
+  const { cookies, setCookie, login, fetching, setError, error } = useGit();
   const navigate = useNavigate();
 
   const Transition = React.forwardRef((props, ref) => (
@@ -46,8 +46,8 @@ export default function App() {
         try {
           const token = await AXIOS.getAccessToken(code);
           setCookie("token", token.access_token, { path: "/" });
-        } catch (e) {
-          console.log(e);
+        } catch {
+          setError(true);
         }
       }
     }
@@ -55,14 +55,22 @@ export default function App() {
   }, [code]);
 
   useEffect(() => {
-    if (login) navigate("/task");
+    if (login && !error) navigate("/task");
   }, [login]);
 
+  useEffect(() => {
+    if (error) navigate("/error");
+  }, [error]);
+
   const loginClick = async () => {
-    const client_id = "47584cedee8582508ef1";
-    window.location.assign(
-      `https://github.com/login/oauth/authorize?client_id=${client_id}&scope=repo`
-    );
+    try {
+      const client_id = "47584cedee8582508ef1";
+      window.location.assign(
+        `https://github.com/login/oauth/authorize?client_id=${client_id}&scope=repo`
+      );
+    } catch {
+      setError(true);
+    }
   };
 
   return (

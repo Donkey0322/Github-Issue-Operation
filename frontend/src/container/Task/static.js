@@ -28,31 +28,36 @@ export function CustomToolbar() {
     getIssue,
     setNoMoreData,
     setCurrentPageSize,
+    setError,
   } = useGit();
   const apiRef = useGridApiContext();
 
   const handleScroll = async (params) => {
-    let distance =
-      gridExpandedRowCountSelector(apiRef) -
-      (gridPageSelector(apiRef) * gridPageSizeSelector(apiRef) +
-        params.renderContext.lastRowIndex);
-    if (
-      !fetching &&
-      !noMoreData &&
-      distance < 3 &&
-      distance >= 0 &&
-      params.renderContext.lastRowIndex > 0 &&
-      !(
-        gridExpandedRowCountSelector(apiRef) > 10 &&
-        gridExpandedRowCountSelector(apiRef) < 0
-      )
-    ) {
-      setFetching(true);
-      setNoMoreData(false);
-      const data = await getIssue(10, currentPage + 1);
-      setIssue((prev) => [...prev, ...data]);
+    try {
+      let distance =
+        gridExpandedRowCountSelector(apiRef) -
+        (gridPageSelector(apiRef) * gridPageSizeSelector(apiRef) +
+          params.renderContext.lastRowIndex);
+      if (
+        !fetching &&
+        !noMoreData &&
+        distance < 3 &&
+        distance >= 0 &&
+        params.renderContext.lastRowIndex > 0 &&
+        !(
+          gridExpandedRowCountSelector(apiRef) > 10 &&
+          gridExpandedRowCountSelector(apiRef) < 0
+        )
+      ) {
+        setFetching(true);
+        setNoMoreData(false);
+        const data = await getIssue(10, currentPage + 1);
+        setIssue((prev) => [...prev, ...data]);
+      }
+      setCurrentPageSize(gridExpandedRowCountSelector(apiRef));
+    } catch {
+      setError(true);
     }
-    setCurrentPageSize(gridExpandedRowCountSelector(apiRef));
   };
 
   var throttle = _.throttle(handleScroll, 1000, { leading: true });

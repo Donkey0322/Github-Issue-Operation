@@ -12,6 +12,7 @@ const GitContext = createContext({
   noMoreData: false,
   currentPageSize: 10,
   search: "",
+  error: false,
   checkSearch: () => {},
   getIssue: async () => {},
   updateIssue: async () => {},
@@ -30,6 +31,7 @@ const GitProvider = (props) => {
   const [noMoreData, setNoMoreData] = useState(false);
   const [currentPageSize, setCurrentPageSize] = useState(10);
   const [search, setSearch] = useState("");
+  const [error, setError] = useState(false);
 
   const checkSearch = (...arg) => {
     for (const a of arg) {
@@ -76,8 +78,8 @@ const GitProvider = (props) => {
             setNoMoreData(true);
           }
           setIssue(issueData.items.map((i) => generateData(i)));
-        } catch (e) {
-          console.log(e);
+        } catch {
+          setError(true);
         }
       }
     }
@@ -89,60 +91,72 @@ const GitProvider = (props) => {
   }, [issue]);
 
   const getIssue = async (per_page, page) => {
-    const data = await AXIOS.getIssue(cookies.token, user, per_page, page);
-    if (data.items.length < per_page) {
-      setNoMoreData(true);
-      setFetching(false);
-    } else {
-      setNoMoreData(false);
+    try {
+      const data = await AXIOS.getIssue(cookies.token, user, per_page, page);
+      if (data.items.length < per_page) {
+        setNoMoreData(true);
+        setFetching(false);
+      } else {
+        setNoMoreData(false);
+      }
+      if (data.items.length === 0) {
+        return [];
+      }
+      switch (per_page % 10) {
+        case 0:
+          setCurrentPage((prev) => prev + 1);
+          break;
+        case 1:
+          if ((data.items.length - 1) % 10 === 0) {
+            setCurrentPage((data.items.length - 1) / 10);
+          } else {
+            setCurrentPage(parseInt((data.items.length - 1) / 10) + 1);
+          }
+          break;
+        case 9:
+          if ((data.items.length - 1) % 10 === 0) {
+            setCurrentPage(parseInt((data.items.length - 1) / 10));
+          } else {
+            setCurrentPage(parseInt(data.items.length / 10) + 1);
+          }
+          break;
+        default:
+          break;
+      }
+      return data.items.map((i) => generateData(i));
+    } catch {
+      setError(true);
     }
-    if (data.items.length === 0) {
-      return [];
-    }
-    switch (per_page % 10) {
-      case 0:
-        setCurrentPage((prev) => prev + 1);
-        break;
-      case 1:
-        if ((data.items.length - 1) % 10 === 0) {
-          setCurrentPage((data.items.length - 1) / 10);
-        } else {
-          setCurrentPage(parseInt((data.items.length - 1) / 10) + 1);
-        }
-        break;
-      case 9:
-        if ((data.items.length - 1) % 10 === 0) {
-          setCurrentPage(parseInt((data.items.length - 1) / 10));
-        } else {
-          setCurrentPage(parseInt(data.items.length / 10) + 1);
-        }
-        break;
-      default:
-        break;
-    }
-    return data.items.map((i) => generateData(i));
   };
 
   const updateIssue = async (repo, issue_number, updated_data) => {
-    const data = await AXIOS.updateIssue(
-      cookies.token,
-      user,
-      repo,
-      issue_number,
-      updated_data
-    );
-    if (updated_data.state !== "closed") {
-      setIssue((prev) =>
-        prev.map((m) => (m.id === data.id ? generateData(data) : m))
+    try {
+      const data = await AXIOS.updateIssue(
+        cookies.token,
+        user,
+        repo,
+        issue_number,
+        updated_data
       );
-    } else {
-      return data;
+      if (updated_data.state !== "closed") {
+        setIssue((prev) =>
+          prev.map((m) => (m.id === data.id ? generateData(data) : m))
+        );
+      } else {
+        return data;
+      }
+    } catch {
+      setError(true);
     }
   };
 
   const createIssue = async (repo, new_data) => {
-    const data = await AXIOS.createIssue(cookies.token, user, repo, new_data);
-    return data;
+    try {
+      const data = await AXIOS.createIssue(cookies.token, user, repo, new_data);
+      return data;
+    } catch {
+      setError(true);
+    }
   };
 
   return (
@@ -166,6 +180,8 @@ const GitProvider = (props) => {
         setCurrentPageSize,
         search,
         setSearch,
+        error,
+        setError,
         createIssue,
         getIssue,
         updateIssue,
