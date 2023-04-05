@@ -133,9 +133,14 @@ const Newitem = ({ setOpen, open }) => {
       return;
     }
     setSubmitLoad(true);
-    setNoMoreData(false);
+
+    // setNoMoreData(false);
     const newdata = await createIssue(repo, { title, body, labels: [label] });
-    const data = await getIssue((currentPage - 1) * 10 - 1, 1);
+    const data = await getIssue(
+      (currentPage - 1) * 10 - 1 <= 9 ? 9 : (currentPage - 1) * 10 + 1,
+      1
+    );
+    console.log(data);
     setIssue([generateData(newdata), ...data]);
     setSubmitLoad(false);
     setNewData({

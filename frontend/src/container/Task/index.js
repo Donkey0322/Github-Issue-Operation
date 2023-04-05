@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   AppBar,
   Box,
@@ -6,26 +7,39 @@ import {
   Typography,
   LinearProgress,
   Button,
+  IconButton,
+  Fab,
+  Tooltip,
 } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
+import AddIcon from "@mui/icons-material/Add";
 import AddBoxOutlinedIcon from "@mui/icons-material/AddBoxOutlined";
 import { useGit } from "../hook/useGit";
 import { DataGrid } from "@mui/x-data-grid";
 import Modal from "./Modal";
 import NewItem from "./Newitem";
+import FetchAlert from "./FetchAlert";
 import {
   Search,
   Container,
   SearchIconWrapper,
   StyledInputBase,
   CustomToolbar,
+  CustomNoRowsOverlay,
 } from "./static";
 
 const Task = () => {
-  const { issue, fetching } = useGit();
+  const { issue, fetching, lessThanPageSize, login } = useGit();
   const [open, setOpen] = useState(false); //編輯頁面開關
   const [create, setCreate] = useState(false); //新增頁面開關
   const [editData, setEditData] = useState({}); //編輯模式開關
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!login) {
+      navigate("/");
+    }
+  }, [login]);
 
   const columns = [
     { field: "title", headerName: "Title", minWidth: 120, flex: 1 },
@@ -75,13 +89,6 @@ const Task = () => {
     setCreate(true);
   };
 
-  // const handleSearch = async (e) => {
-  //   if (e.key === "Enter") {
-  //     const data = await AXIOS.searchIssue(cookies.token);
-  //     console.log(data);
-  //   }
-  // };
-
   return (
     <Box sx={{ flexGrow: 1, width: "100vw", position: "fixed" }}>
       <AppBar position="static" sx={{ background: "#24292F" }}>
@@ -90,14 +97,19 @@ const Task = () => {
             variant="h6"
             noWrap
             component="div"
-            sx={{ flexGrow: 1, display: { xs: "none", sm: "block" } }}
+            sx={{ flexGrow: 1, display: { sm: "block" } }}
           >
             Github Issues
           </Typography>
+          <Tooltip title="Click to random generate issues for testing">
+            <Fab size="small" color="success" sx={{ mr: 1 }}>
+              <AddIcon />
+            </Fab>
+          </Tooltip>
           <Button
             variant="outlined"
             startIcon={<AddBoxOutlinedIcon />}
-            sx={{ backgroundColor: "#FFFFFF" }}
+            sx={{ backgroundColor: "#FFFFFF", mr: 1 }}
             onClick={handleCreateClick}
           >
             Create Tasks
@@ -115,25 +127,28 @@ const Task = () => {
         </Toolbar>
       </AppBar>
       <Container>
-        {issue?.length > 0 && (
-          <div style={{ height: "min(80%, 500px)", width: "100%" }}>
-            <DataGrid
-              rows={issue}
-              columns={columns}
-              slots={{
-                toolbar: CustomToolbar,
-                loadingOverlay: LinearProgress,
-              }}
-              // scrollbarSize={200}
-              loading={fetching}
-              getRowId={(row) => row.id}
-              sx={{ background: "#FFFFFF" }}
-              onRowClick={handleRowClick}
-              hideFooterSelectedRowCount={true}
-              disableRowSelectionOnClick={true}
-            />
-          </div>
-        )}
+        <div style={{ height: "min(80%, 400px)", width: "100%" }}>
+          <DataGrid
+            rows={issue?.length > 0 ? issue : []}
+            columns={columns}
+            slots={{
+              toolbar: CustomToolbar,
+              loadingOverlay: LinearProgress,
+              noResultsOverlay: CustomNoRowsOverlay,
+              noRowsOverlay: CustomNoRowsOverlay,
+            }}
+            initialState={{
+              pagination: { paginationModel: { pageSize: 10 } },
+            }}
+            pageSizeOptions={[10, 25, 50, 100]}
+            loading={fetching}
+            getRowId={(row) => row.id}
+            sx={{ background: "#FFFFFF" }}
+            onRowClick={handleRowClick}
+            hideFooterSelectedRowCount={true}
+            disableRowSelectionOnClick={true}
+          />
+        </div>
       </Container>
       <Modal
         open={open}
@@ -142,6 +157,7 @@ const Task = () => {
         setRawData={setEditData}
       />
       <NewItem open={create} setOpen={setCreate} />
+      <FetchAlert open={lessThanPageSize} />
     </Box>
   );
 };

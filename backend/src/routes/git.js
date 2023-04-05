@@ -5,111 +5,123 @@ const fetch = (...args) =>
 const router = express.Router();
 
 router.get("/getAccessToken", async (req, res) => {
-  const { code, client_id, client_secret } = req.query;
-  await fetch(
-    `http://github.com/login/oauth/access_token?client_id=${client_id}&client_secret=${client_secret}&code=${code}`,
-    {
-      mothod: "POST",
-      headers: { Accept: "application/vnd.github+json" },
-    }
-  )
-    .then((response) => response.json())
-    .then((data) => {
-      res.json(data);
-    });
+  try {
+    const { code, client_id, client_secret } = req.query;
+    const response = await fetch(
+      `http://github.com/login/oauth/access_token?client_id=${client_id}&client_secret=${client_secret}&code=${code}`,
+      {
+        mothod: "POST",
+        headers: { Accept: "application/vnd.github+json" },
+      }
+    );
+    const data = await response.json();
+    res.json(data);
+  } catch (error) {
+    res.status(422).json({ message: "Something Wrong" });
+  }
 });
 
 router.get("/getUserData", async (req, res) => {
-  req.get("Authorization");
-  await fetch("https://api.github.com/user", {
-    method: "GET",
-    headers: {
-      Authorization: req.get("Authorization"),
-    },
-  })
-    .then((response) => response.json())
-    .then((data) => {
-      // console.log(data);
-      res.json(data);
-    });
-});
-
-router.get("/getIssue", async (req, res) => {
-  const { q, page, per_page } = req.query;
-  req.get("Authorization");
-  await fetch(
-    `https://api.github.com/search/issues?q=${q}&per_page=${per_page}&page=${page}`,
-    {
+  try {
+    req.get("Authorization");
+    const response = await fetch("https://api.github.com/user", {
       method: "GET",
       headers: {
         Authorization: req.get("Authorization"),
         Accept: "application/vnd.github+json",
       },
-    }
-  )
-    .then((response) => response.json())
-    .then((data) => {
-      // console.log("HI", data.length > 0 ? data[0].title : "No data");
-      res.json(data);
     });
+    const data = await response.json();
+    res.json(data);
+  } catch (error) {
+    res.status(422).json({ message: "Something Wrong" });
+  }
 });
 
 router.get("/getRepo", async (req, res) => {
-  const { username } = req.query;
-  req.get("Authorization");
-  await fetch(`https://api.github.com/users/${username}/repos`, {
-    method: "GET",
-    headers: {
-      Authorization: req.get("Authorization"),
-      Accept: "application/vnd.github+json",
-    },
-  })
-    .then((response) => response.json())
-    .then((data) => {
-      // console.log(data);
-      res.json(data);
-    });
+  try {
+    const { username } = req.query;
+    req.get("Authorization");
+    const response = await fetch(
+      `https://api.github.com/users/${username}/repos`,
+      {
+        method: "GET",
+        headers: {
+          Authorization: req.get("Authorization"),
+          Accept: "application/vnd.github+json",
+        },
+      }
+    );
+    const data = await response.json();
+    res.json(data);
+  } catch (error) {
+    res.status(422).json({ message: "Something Wrong" });
+  }
+});
+
+router.get("/getIssue", async (req, res) => {
+  try {
+    const { q, page, per_page } = req.query;
+    req.get("Authorization");
+    const response = await fetch(
+      `https://api.github.com/search/issues?q=${q}&per_page=${per_page}&page=${page}`,
+      {
+        method: "GET",
+        headers: {
+          Authorization: req.get("Authorization"),
+          Accept: "application/vnd.github+json",
+        },
+      }
+    );
+    const data = await response.json();
+    res.json(data);
+  } catch (error) {
+    res.status(422).json({ message: "Something Wrong" });
+  }
 });
 
 router.get("/updateIssue", async (req, res) => {
-  const { user, repo, issue_number, updated_data } = req.query;
-  req.get("Authorization");
-  // console.log("Hi", user, repo, issue_number);
-  await fetch(
-    `https://api.github.com/repos/${user}/${repo}/issues/${issue_number}`,
-    {
-      method: "PATCH",
-      headers: {
-        Authorization: req.get("Authorization"),
-        Accept: "application/vnd.github+json",
-      },
-      body: JSON.stringify(updated_data),
-    }
-  )
-    .then((response) => response.json())
-    .then((data) => {
-      console.log(data.labels.map((m) => m.name));
-      res.json(data);
-    });
+  try {
+    const { user, repo, issue_number, updated_data } = req.query;
+    req.get("Authorization");
+    const response = await fetch(
+      `https://api.github.com/repos/${user}/${repo}/issues/${issue_number}`,
+      {
+        method: "PATCH",
+        headers: {
+          Authorization: req.get("Authorization"),
+          Accept: "application/vnd.github+json",
+        },
+        body: JSON.stringify(updated_data),
+      }
+    );
+    const data = await response.json({ message: "Something Wrong" });
+    res.json(data);
+  } catch (error) {
+    res.status(422).json({ message: "Something Wrong" });
+  }
 });
 
 router.get("/createIssue", async (req, res) => {
-  const { user, repo, new_data } = req.query;
-  req.get("Authorization");
-  // console.log("Hi", user, repo, issue_number);
-  await fetch(`https://api.github.com/repos/${user}/${repo}/issues`, {
-    method: "POST",
-    headers: {
-      Authorization: req.get("Authorization"),
-      Accept: "application/vnd.github+json",
-    },
-    body: JSON.stringify(new_data),
-  })
-    .then((response) => response.json())
-    .then((data) => {
-      console.log(data.labels.map((m) => m.name));
-      res.json(data);
-    });
+  try {
+    const { user, repo, new_data } = req.query;
+    req.get("Authorization");
+    const response = await fetch(
+      `https://api.github.com/repos/${user}/${repo}/issues`,
+      {
+        method: "POST",
+        headers: {
+          Authorization: req.get("Authorization"),
+          Accept: "application/vnd.github+json",
+        },
+        body: JSON.stringify(new_data),
+      }
+    );
+    const data = await response.json();
+    res.json(data);
+  } catch (error) {
+    res.status(422).json({ message: "Something Wrong" });
+  }
 });
 
 export default router;

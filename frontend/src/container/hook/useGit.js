@@ -11,6 +11,8 @@ const GitContext = createContext({
   currentPage: 1,
   fetching: false,
   noMoreData: false,
+  lessThanPageSize: false,
+  currentPageSize: 10,
   getIssue: async () => {},
   updateIssue: async () => {},
   createIssue: async () => {},
@@ -26,14 +28,14 @@ const GitProvider = (props) => {
   const [currentPage, setCurrentPage] = useState(1);
   const [fetching, setFetching] = useState(false);
   const [noMoreData, setNoMoreData] = useState(false);
+  const [lessThanPageSize, setLessThanPageSize] = useState(false);
+  const [currentPageSize, setCurrentPageSize] = useState(10);
 
   function generateData(target) {
     return {
       title: target.title,
       body: target.body,
-      // create: dayjs(target.created_at).calendar(),
       create: target.created_at,
-      // update: dayjs(target.updated_at).calendar(),
       update: target.updated_at,
       state: target.state,
       number: target.number,
@@ -47,14 +49,20 @@ const GitProvider = (props) => {
     async function func() {
       if (cookies.token) {
         try {
+          setFetching(true);
           const userData = await AXIOS.getUserData(cookies.token);
           setUser(userData.login);
           const repoData = await AXIOS.getRepo(cookies.token, userData.login);
           setRepo(repoData.map((m) => m.name));
-          const issueData = await AXIOS.getIssue(cookies.token, userData.login);
-          setIssue(issueData.items.map((i) => generateData(i)));
-          setCurrentPage((prev) => prev + 1);
           setLogin(true);
+          const issueData = await AXIOS.getIssue(cookies.token, userData.login);
+          if (issueData.items.length < 10) {
+            setNoMoreData(true);
+          } else {
+            setCurrentPage(2);
+          }
+          setIssue(issueData.items.map((i) => generateData(i)));
+          setFetching(false);
         } catch (e) {
           console.log(e);
         }
@@ -72,6 +80,21 @@ const GitProvider = (props) => {
     console.log(data);
     if (data.items.length < per_page) {
       setNoMoreData(true);
+      setLessThanPageSize(false);
+    } else {
+      switch (per_page % 10) {
+        case 9: //新增
+          if (data.items.length === per_page)
+            setCurrentPage((prev) => prev + 1);
+
+          break;
+
+        default:
+          break;
+      }
+      if (per_page) {
+        setCurrentPage((prev) => prev + 1);
+      }
     }
     return data.items.map((i) => generateData(i));
   };
@@ -103,6 +126,7 @@ const GitProvider = (props) => {
     <GitContext.Provider
       value={{
         login,
+        user,
         cookies,
         setCookie,
         removeCookie,
@@ -115,6 +139,10 @@ const GitProvider = (props) => {
         setFetching,
         noMoreData,
         setNoMoreData,
+        lessThanPageSize,
+        setLessThanPageSize,
+        currentPageSize,
+        setCurrentPageSize,
         createIssue,
         getIssue,
         updateIssue,

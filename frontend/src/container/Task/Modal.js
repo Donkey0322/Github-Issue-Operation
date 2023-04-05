@@ -68,6 +68,8 @@ const Modal = ({ rawData, setOpen, open, setRawData }) => {
     currentPage,
     setIssue,
     generateData,
+    fetching,
+    setFetching,
   } = useGit();
 
   useEffect(() => {
@@ -138,18 +140,21 @@ const Modal = ({ rawData, setOpen, open, setRawData }) => {
 
   const handleDelete = async () => {
     const { title, body, label, repo, number } = editData;
-    setNoMoreData(false);
-    setSubmitLoad(true);
+    setFetching(true);
     const deleteData = await updateIssue(repo, number, {
       title,
       body,
       labels: [label],
       state: "closed",
     });
-    const data = await getIssue((currentPage - 1) * 10 + 1, 1);
+    const data = await getIssue(
+      (currentPage - 1) * 10 + 1 <= 11 ? 11 : (currentPage - 1) * 10 + 1,
+      1
+    );
+    console.log(data);
     console.log(data.filter((m) => m.id !== generateData(deleteData).id));
     setIssue(data.filter((m) => m.id !== generateData(deleteData).id));
-    setSubmitLoad(false);
+    setFetching(false);
     console.log(data);
     handleClose();
   };
@@ -329,7 +334,7 @@ const Modal = ({ rawData, setOpen, open, setRawData }) => {
           </DialogActions>
         )}
         <Dialog
-          open={submitLoad}
+          open={fetching}
           // onClose={handleClose}
           TransitionComponent={Transition}
           fullWidth={true}
