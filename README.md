@@ -57,7 +57,7 @@ yarn backend
    - status 只有 _Open_, _In Progress_, _Done_ 三種類型可選。
      以上若無符合任何一項，或者與原本 issue 並無差別則無法更新。
 4. 新增 issue: :heavy_plus_sign: 點選右上角的 Create Task 新增 issue，<br>
-   **Except Handling**
+   **Except Handling:**
 
    - title: 為必填欄位。
    - body: 必須超過 30 字。
@@ -69,7 +69,7 @@ yarn backend
 
 5. 刪除 issue: 實質上是將 issue 在 GitHub 中改為 state=closed。<br>
    **Except Handling:** 跳出提示欄進行 2 次確認。在刪除後若原本顯示的欄位是 10 的倍數，則會維持原數目，反之則比原本少 1 筆（刪除的那一筆）。
-6. 獲取 issue: 將滾輪下滑到底部（感應器可能會偵測到倒數 1~2 筆），會自動索取 10 筆 issue，若沒有 issue 或未滿 10 筆則會跳出通知:_No more data_<br>
+6. 獲取 issue: 將滾輪下滑到底部（感應器可能會偵測到倒數 1~2 筆），會自動索取 10 筆 issue，若沒有 issue 或未滿 10 筆則會跳出通知: _No more data_<br>
    **Note:** 這邊運用了 throttle 技術，避免滾輪在底部時偵測過快導致系統出錯，故反應時間可能會稍微遲 0.5 秒，在新增或是刪除時都會運用到這筆技術，故當滾輪在底部時可以觀察，若反應不好麻煩在重啟系統（刷新頁面）。
 7. 搜尋 issue: 在右上角的 search bar 裡輸入想查詢的字並按下 Enter，系統會查找所有 _title_, _body_, _repo_ 包含該關鍵字的 row，並 hightlight 提示。
 8. MUI 提供:
@@ -86,4 +86,4 @@ yarn backend
     **Note:** 僅提供單一 sorting。
 11. Testing Button: 右上角的綠色新增符號可以快速隨機新增 issue。
     **Except Handling:** 若系統無偵測到公開 repo 則無法點擊。
-12. 其他還有一些防呆機制，在 issue 後台操作時的 UIUX 設計等等。
+12. 其他還有一些防呆機制、在 issue 後台操作時的 UIUX 設計、沒有 Data 時的可愛設計等等。
