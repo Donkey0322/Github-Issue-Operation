@@ -1,52 +1,79 @@
-##  [111-1] Web Programming Final
-### Group 21 - Gros Patisserie 胖胖製甜所
-組員：資管三 林栗綺、賴羿蓁、李昀宸
-***
-### 專題介紹
-* 這個服務在做什麼？ <br>
-因為我們有位組員的姊姊會在網路上販售甜點，目前主要以 IG 的帳號為主要的對外窗口，我們便想到能夠利用這學期所學，為她架設一個網站，能夠讓她的顧客能夠以更方便的介面去查看商品及購買。
-* 使用、參考之第三方套件、框架、程式碼：<br>
-前端：React.js, material UI, React Router, MaterialUI, Styled-components <br>
-後端：Node.js, Express <br>
-資料庫：MySQL <br>
-其他：Google OAuth, jwt, 一些課堂或黑客松的程式碼
+## [2023-04-05] Frontend Intern Homework
+
+### 台灣大學 資管系 三年級 李昀宸
+
+---
+
+### 介紹
+
+- 這個服務在做什麼？ <br>
+  可以使用這個網頁操作您在 GitHub 上公開的 issue (public repository)
+- 使用、參考之第三方套件、框架、程式碼：<br>
+  前端：React.js, Material UI, React Router, Styled-components, Lodash, Antd, Axios <br>
+  後端：Node.js, Express.js <br>
+  其他：GitHub OAuth
 
 ### 操作說明
-1. 將 .env.default 改為 .env，並將內容改成 <br> 
+
+1. 在此目錄下 `install:all` 安裝所需 package<br>
+
 ```
-PASSWORD="b097050030415"
-GOOGLE_CLIENT_ID="137185012967-g6cefraovhadt8r9884g0on0sgvfiu85.apps.googleusercontent.com"
-GOOGLE_CLIENT_SECRET="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"
-CLIENT_URL="http://localhost:3000/"
-PORT=4000
+# under 2023-Frontend-Intern-Homework
+yarn install:all
 ```
-2. 分別至 frontend, backend 目錄底下 yarn，並以 yarn start, yarn server 開啟。<br>
-```
-# under frontend
-yarn
-yarn start
-```
+
+2. 啟動後端：在 backend 下 `yarn server`<br>
+
 ```
 # under backend
 yarn
 yarn server
 ```
-3. 接著就能在 localhost:3000 使用我們的服務。
+
+3. 啟動後端：在 frontend 下 `yarn start`，接著就能在 localhost:3000 使用我們的服務。
+
+```
+# under frontend
+yarn
+yarn start
+```
 
 ### 功能說明
-#### 可先觀賞 demo 影片再進行操作
-1. 基本操作：點選畫面上方中間的 logo 可以回到主頁，主要功能欄也都可以點選進到相應服務，若再未登入的狀況下點選會員專區，會跳到登入、註冊畫面。
-2. 註冊功能：可以使用 Google 帳號註冊也可以使用一般註冊，或是使用這組帳密（帳號：httpellie@gmail.com、密碼：abcd1234），兩種登入功能都是一樣的，不註冊也能瀏覽網頁。
-3. 忘記密碼：會寄信到信箱中，點按網址可以到重設密碼的頁面重新設定密碼。
-3. 在商品總覽中，左側可以選擇想要瀏覽的商品種類，並透過左上方的 selector 選擇排序方式。
-4. 登入過後，可以將商品加入購物車，此紀錄會被保留，之後登出再登入，購物車中會有紀錄。在購物車中也可以調整商品的數量或刪除。
-5. 在購物車中，可以移除商品也可以勾選欲下單的商品後點選訂購按鈕，會送出訂單，之後便可在會員專區中的訂單查詢中看見自己的訂單。訂單查詢中的訂單，可以點選並展開，會顯示此筆訂單購買的商品，同樣地，下次登入也能看見此訂單。
-6. 會員專區中，有另一個會員資料的頁面，此頁面可讓使用者更改會員資料，並加入一些當時登入並未留下的資料，不過信箱的部分是不能更改的，更動資料後按下右下角的儲存變更即可。
-7. 其他還有一些防呆機制，照片的瀏覽巧思等等。
 
-### 專題製作心得：
-賴羿蓁：<br>
-要在十六週學這麼多東西，還要再最後產出一個網頁真的好難喔，我們算是很晚才開始，後面幾天全力衝刺，過程中可說是非常艱辛，但也學到了很多，謝謝我的組員，大家真的都辛苦了，終於可以放假啦～ <br><br>
-林栗綺：<br>
-這次專案準備的時間很趕，而且一開始難以想像我們可以寫出一個網站，平時寫作業雖然難度也很高，但不用自己從頭到尾建一個網站出來。我負責後端的部分，除了連結MySQL的資料庫與之前所學的mongoDB不同之外，還額外挑戰了google登入以及忘記密碼要寄信這樣的功能，雖然過程很辛苦，但成功運作的時候還是覺得非常愉快，算是本次專案的小確幸。後來有調整一點點前端的畫面，但時間沒有很多，所以難以做到最好，我也認知到前端是需要很長時間一直鑽研畫面的工作，像這次專案非常趕，寫前端畫面就會沒有非常漂亮，還是可以再慢慢調整，讓它變得更完美。<br><br>
-李昀宸：
+1. 註冊功能：使用 GitHub 帳號登入，在 http://localhost:3000/ 登入後會得到一組 code，請稍候等待系統登入。<br>
+   **Except Handling:** 在登入後就不允許再進入登入頁面。
+2. 基本操作：在 http://localhost:3000/task 中會自動匯入 10 筆 issues，可以點選打開閱讀詳細內容或進行編輯。
+   **Except Handling:** 未登入前不允許進入該頁面。
+3. 更新 / 編輯 issue: 在詳細內容的 Modal 中可以點選右上角的編輯圖標，系統會切換到編輯模式。
+   **Except Handling:**
+   - title 為必填欄位。
+   - body 必須超過 30 字，若原本 issue 的內容沒有超過 30 字，也必須遵守才能進行更新。
+   - status 只有 _Open_, _In Progress_, _Done_ 三種類型可選。
+     以上若無符合任何一項，或者與原本 issue 並無差別則無法更新。
+4. 新增 issue: :heavy_plus_sign: 點選右上角的 Create Task 新增 issue，
+   **Except Handling:**
+   - title- 為必填欄位。
+   - body- 必須超過 30 字。
+   - status- 只有 _Open_, _In Progress_, _Done_ 三種類型可選。
+   - repo- 需從您公開的 repository 中選擇要更新的目標地，若系統無偵測到公開 repo 則無法選擇。
+     以上若無符合任何一項則無法新增。
+     在新增後該筆新增會在最上方，若原本顯示的欄位是 10 的倍數，則會維持原數目，反之則比原本多 1 筆（新增的那一筆）。
+5. 刪除 issue: 實質上是將 issue 在 GitHub 中改為 state=closed。
+   **Except Handling:** 跳出提示欄進行 2 次確認。
+   在刪除後若原本顯示的欄位是 10 的倍數，則會維持原數目，反之則比原本少 1 筆（刪除的那一筆）。
+6. 獲取 issue: 將滾輪下滑到底部（感應器可能會偵測到倒數 1~2 筆），會自動索取 10 筆 issue，若沒有 issue 或未滿 10 筆則會跳出通知:_No more data_
+   **Note:** 這邊運用了 throttle 技術，避免滾輪在底部時偵測過快導致系統出錯，故反應時間可能會稍微遲 0.5 秒，在新增或是刪除時都會運用到這筆技術，故當滾輪在底部時可以觀察，若反應不好麻煩在重啟系統（刷新頁面）。
+7. 搜尋 issue: 在右上角的 search bar 裡輸入想查詢的字並按下 Enter，系統會查找所有 _title_, _body_, _repo_ 包含該關鍵字的 row，並 hightlight 提示。
+8. MUI 提供:
+   - 可以更改頁面筆數，預設為 50 筆。
+   - 可以切換頁面。**Note:** 在最後的頁面才能以滾輪索要 issue
+   - 可以隱藏或顯示 column。
+   - 可以更改 row 間的密度。
+   - 可以輸出成 CSV 檔。
+9. Filter: 可已依想要方式做篩選（為 MUI 提供的服務），值得觀察的是在 filter 時若所得 result 未超過 10 筆，系統會跳出提示（有點強迫）索要更多 issue，直到 filter 結果大於 10 筆或沒有更多 issue。
+   **Note:**僅提供單一 filter。
+10. Sorting: 根據欄位進行 sorting，字串以 Alphabet 排序，時間以時間先後排序，預設為 issue 建立時間。
+    **Note:**僅提供單一 sorting。
+11. Testing Button: 右上角的綠色新增符號可以快速隨機新增 issue。
+    **Except Handling:** 若系統無偵測到公開 repo 則無法點擊。
+12. 其他還有一些防呆機制，在 issue 後台操作時的 UIUX 設計等等。

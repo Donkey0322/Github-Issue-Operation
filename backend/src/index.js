@@ -3,11 +3,6 @@ import cors from "cors";
 import router from "./routes/index.js";
 import bodyparser from "body-parser";
 
-// sql.connect(function (err) {
-//   if (err) throw err;
-//   console.log("DB Connected!");
-// });
-
 const app = express();
 // init middleware
 app.use(cors());

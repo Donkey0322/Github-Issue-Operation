@@ -1,5 +1,5 @@
 {
-  "name": "111-1-web-hackathon03",
+  "name": "frontend-intern-homework",
   "version": "1.0.0",
   "scripts": {
     "install:all": "cd frontend && yarn && cd ../backend && yarn",
@@ -10,8 +10,7 @@
     "pull": "node git.js pull && git merge main",
     "clone": "node git.js clone"
   },
-  "repository": "git@github.com:ntuee-web-programming/111-1-Web-Hackathon03.git",
-  "author": "madmaxieee <76544194+madmaxieee@users.noreply.github.com>",
+  "author": "李昀宸",
   "license": "MIT",
   "devDependencies": {
     "cypress": "^12.1.0",
