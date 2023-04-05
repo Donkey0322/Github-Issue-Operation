@@ -44,6 +44,11 @@ yarn frontend
 yarn backend
 ```
 
+### 測試帳號提供
+
+帳號: Dcard2023<br>
+密碼: 2023 Frontend Intern Homework
+
 ### 功能說明
 
 1. 註冊功能：使用 GitHub 帳號登入，在 http://localhost:3000 登入後會得到一組 code，請稍候等待系統登入。<br>
