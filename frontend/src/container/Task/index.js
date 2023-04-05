@@ -7,7 +7,6 @@ import {
   Typography,
   LinearProgress,
   Button,
-  IconButton,
   Fab,
   Tooltip,
 } from "@mui/material";
@@ -15,7 +14,6 @@ import SearchIcon from "@mui/icons-material/Search";
 import AddIcon from "@mui/icons-material/Add";
 import AddBoxOutlinedIcon from "@mui/icons-material/AddBoxOutlined";
 import { useGit } from "../hook/useGit";
-import { DataGrid } from "@mui/x-data-grid";
 import Modal from "./Modal";
 import NewItem from "./Newitem";
 import FetchAlert from "./FetchAlert";
@@ -26,20 +24,60 @@ import {
   StyledInputBase,
   CustomToolbar,
   CustomNoRowsOverlay,
+  StyledDataGrid,
 } from "./static";
+import { message } from "antd";
+
+function randomString(length) {
+  let result = "";
+  const characters =
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+  const charactersLength = characters.length;
+  let counter = 0;
+  while (counter < length) {
+    result += characters.charAt(Math.floor(Math.random() * charactersLength));
+    counter += 1;
+  }
+  return result;
+}
 
 const Task = () => {
-  const { issue, fetching, lessThanPageSize, login } = useGit();
+  const {
+    issue,
+    fetching,
+    login,
+    createIssue,
+    getIssue,
+    currentPage,
+    setIssue,
+    generateData,
+    setFetching,
+    setNoMoreData,
+    setSearch,
+    checkSearch,
+    noMoreData,
+    repo,
+  } = useGit();
   const [open, setOpen] = useState(false); //編輯頁面開關
   const [create, setCreate] = useState(false); //新增頁面開關
   const [editData, setEditData] = useState({}); //編輯模式開關
   const navigate = useNavigate();
+  const [messageApi, contextHolder] = message.useMessage();
+  const info = () => {
+    messageApi.info("No more issues!");
+  };
 
   useEffect(() => {
     if (!login) {
       navigate("/");
     }
-  }, [login]);
+  }, [login, navigate]);
+
+  useEffect(() => {
+    if (noMoreData) {
+      info();
+    }
+  }, [noMoreData]);
 
   const columns = [
     { field: "title", headerName: "Title", minWidth: 120, flex: 1 },
@@ -89,8 +127,49 @@ const Task = () => {
     setCreate(true);
   };
 
+  const handleSearchEnter = (e) => {
+    if (e.key === "Enter") {
+      setIssue((prev) =>
+        prev.map((p) => ({
+          ...p,
+          chosen: checkSearch(p.title, p.body, p.repo),
+        }))
+      );
+    }
+  };
+
+  const handleSearchChange = (e) => {
+    setSearch(e.target.value);
+    if (e.target.value === "") {
+      setIssue((prev) =>
+        prev.map((p) => ({
+          ...p,
+          chosen: "not",
+        }))
+      );
+    }
+  };
+
+  const RandomAddClick = async () => {
+    setFetching(true);
+    if (!noMoreData) {
+      setNoMoreData(false);
+    }
+    const newdata = await createIssue(
+      repo[Math.floor(Math.random() * repo.length)],
+      {
+        title: randomString(5),
+        body: randomString(5),
+        labels: ["Open"],
+      }
+    );
+    const data = await getIssue(currentPage * 10 - 1, 1);
+    setIssue([generateData(newdata), ...data]);
+  };
+
   return (
     <Box sx={{ flexGrow: 1, width: "100vw", position: "fixed" }}>
+      {contextHolder}
       <AppBar position="static" sx={{ background: "#24292F" }}>
         <Toolbar>
           <Typography
@@ -102,7 +181,13 @@ const Task = () => {
             Github Issues
           </Typography>
           <Tooltip title="Click to random generate issues for testing">
-            <Fab size="small" color="success" sx={{ mr: 1 }}>
+            <Fab
+              size="small"
+              color="success"
+              sx={{ mr: 1 }}
+              onClick={RandomAddClick}
+              disabled={repo?.length === 0}
+            >
               <AddIcon />
             </Fab>
           </Tooltip>
@@ -114,21 +199,23 @@ const Task = () => {
           >
             Create Tasks
           </Button>
-          <Search>
-            <SearchIconWrapper>
-              <SearchIcon />
-            </SearchIconWrapper>
-            <StyledInputBase
-              placeholder="Search for content"
-              inputProps={{ "aria-label": "search" }}
-              // onKeyDown={handleSearch}
-            />
-          </Search>
+          <Tooltip title={'Click "Enter" to search'}>
+            <Search>
+              <SearchIconWrapper>
+                <SearchIcon />
+              </SearchIconWrapper>
+              <StyledInputBase
+                placeholder="Search for content"
+                onKeyDown={handleSearchEnter}
+                onChange={handleSearchChange}
+              />
+            </Search>
+          </Tooltip>
         </Toolbar>
       </AppBar>
       <Container>
         <div style={{ height: "min(80%, 400px)", width: "100%" }}>
-          <DataGrid
+          <StyledDataGrid
             rows={issue?.length > 0 ? issue : []}
             columns={columns}
             slots={{
@@ -138,7 +225,7 @@ const Task = () => {
               noRowsOverlay: CustomNoRowsOverlay,
             }}
             initialState={{
-              pagination: { paginationModel: { pageSize: 10 } },
+              pagination: { paginationModel: { pageSize: 50 } },
             }}
             pageSizeOptions={[10, 25, 50, 100]}
             loading={fetching}
@@ -147,6 +234,9 @@ const Task = () => {
             onRowClick={handleRowClick}
             hideFooterSelectedRowCount={true}
             disableRowSelectionOnClick={true}
+            getRowClassName={(params) =>
+              `super-app-theme--${params.row.chosen}`
+            }
           />
         </div>
       </Container>
@@ -157,7 +247,7 @@ const Task = () => {
         setRawData={setEditData}
       />
       <NewItem open={create} setOpen={setCreate} />
-      <FetchAlert open={lessThanPageSize} />
+      <FetchAlert />
     </Box>
   );
 };

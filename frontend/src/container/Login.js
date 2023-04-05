@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { CssVarsProvider, useColorScheme } from "@mui/joy/styles";
 import { useLocation, useNavigate } from "react-router-dom";
-import Sheet from "@mui/joy/Sheet";
-import Typography from "@mui/joy/Typography";
-import Button from "@mui/joy/Button";
+import { Sheet, Typography, Button } from "@mui/joy";
 import AcUnitIcon from "@mui/icons-material/AcUnit";
 import * as AXIOS from "../middleware";
 import { useGit } from "./hook/useGit";
+import { Dialog, Grow, Stack } from "@mui/material";
+import CircularProgress from "@mui/material/CircularProgress";
 
 function ModeToggle() {
   const { mode, setMode } = useColorScheme();
@@ -33,16 +33,18 @@ function ModeToggle() {
 
 export default function App() {
   const code = new URLSearchParams(useLocation().search).get("code");
-  console.log("code:", code);
-  const { cookies, setCookie, login } = useGit();
+  const { cookies, setCookie, login, fetching } = useGit();
   const navigate = useNavigate();
+
+  const Transition = React.forwardRef((props, ref) => (
+    <Grow ref={ref} {...props} unmountOnExit />
+  ));
 
   useEffect(() => {
     async function func() {
       if (code && !cookies.token) {
         try {
           const token = await AXIOS.getAccessToken(code);
-          // console.log(token);
           setCookie("token", token.access_token, { path: "/" });
         } catch (e) {
           console.log(e);
@@ -64,37 +66,59 @@ export default function App() {
   };
 
   return (
-    <CssVarsProvider>
-      <main>
-        <ModeToggle />
-        <Sheet
-          sx={{
-            width: 300,
-            mx: "auto", // margin left & right
-            my: 4, // margin top & botom
-            py: 3, // padding top & bottom
-            px: 2, // padding left & right
-            display: "flex",
-            flexDirection: "column",
-            gap: 2,
-            borderRadius: "sm",
-            boxShadow: "md",
-          }}
-          variant="outlined"
-        >
-          <div>
-            <Typography level="h4" component="h1">
-              <b>Welcome!</b>
-            </Typography>
-            <Typography level="body2">Sign in to continue.</Typography>
-          </div>
+    <>
+      <CssVarsProvider>
+        <main>
+          <ModeToggle />
+          <Sheet
+            sx={{
+              width: 300,
+              mx: "auto", // margin left & right
+              my: 4, // margin top & botom
+              py: 3, // padding top & bottom
+              px: 2, // padding left & right
+              display: "flex",
+              flexDirection: "column",
+              gap: 2,
+              borderRadius: "sm",
+              boxShadow: "md",
+            }}
+            variant="outlined"
+          >
+            <div>
+              <Typography level="h4" component="h1">
+                <b>Welcome!</b>
+              </Typography>
+              <Typography level="body2">Sign in to continue.</Typography>
+            </div>
 
-          <Button sx={{ mt: 1 }} variant="outlined" onClick={loginClick}>
-            <AcUnitIcon sx={{ position: "absolute", left: "2px" }} />
-            Log in by GitHub
-          </Button>
-        </Sheet>
-      </main>
-    </CssVarsProvider>
+            <Button sx={{ mt: 1 }} variant="outlined" onClick={loginClick}>
+              <AcUnitIcon sx={{ position: "absolute", left: "2px" }} />
+              Log in by GitHub
+            </Button>
+          </Sheet>
+        </main>
+      </CssVarsProvider>
+      <Dialog
+        open={fetching}
+        // onClose={handleClose}
+        TransitionComponent={Transition}
+        fullWidth={true}
+        maxWidth={"md"}
+        // sx={{ background: "black" }}
+        PaperComponent={Stack}
+        PaperProps={{
+          style: {
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            height: "200px",
+          },
+        }}
+        sx={{ color: "#fff" }}
+      >
+        <CircularProgress color="inherit" />
+      </Dialog>
+    </>
   );
 }

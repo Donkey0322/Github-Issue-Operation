@@ -1,9 +1,10 @@
 import React from "react";
 import { InputBase, Box } from "@mui/material";
-import { styled, alpha } from "@mui/material/styles";
+import { darken, lighten, styled, alpha } from "@mui/material/styles";
 import STYLED from "styled-components";
 import { useGit } from "../hook/useGit";
 import {
+  DataGrid,
   GridToolbarContainer,
   GridToolbarColumnsButton,
   GridToolbarFilterButton,
@@ -14,7 +15,6 @@ import {
   gridExpandedRowCountSelector,
   gridPageSelector,
   gridPageSizeSelector,
-  gridFilterModelSelector,
 } from "@mui/x-data-grid";
 import _ from "lodash";
 
@@ -26,50 +26,38 @@ export function CustomToolbar() {
     setFetching,
     noMoreData,
     getIssue,
-    setLessThanPageSize,
-    user,
+    setNoMoreData,
     setCurrentPageSize,
   } = useGit();
   const apiRef = useGridApiContext();
 
   const handleScroll = async (params) => {
-    if (user) {
-      if (
-        !fetching &&
-        !noMoreData &&
-        gridExpandedRowCountSelector(apiRef) < 10 &&
-        gridExpandedRowCountSelector(apiRef) > 0
-      ) {
-        console.log(
-          gridExpandedRowCountSelector(apiRef),
-          gridPageSizeSelector(apiRef)
-        );
-        setLessThanPageSize(true);
-        // console.log(gridExpandedRowCountSelector(apiRef));
-      } else if (
-        !fetching &&
-        !noMoreData &&
-        gridExpandedRowCountSelector(apiRef) -
-          (gridPageSelector(apiRef) * gridPageSizeSelector(apiRef) +
-            params.renderContext.lastRowIndex) <
-          3 &&
-        params.renderContext.lastRowIndex > 0
-      ) {
-        setFetching(true);
-        const data = await getIssue(10, currentPage);
-        setIssue((prev) => [...prev, ...data]);
-      }
-      console.log(gridExpandedRowCountSelector(apiRef));
-      setCurrentPageSize(gridExpandedRowCountSelector(apiRef));
+    let distance =
+      gridExpandedRowCountSelector(apiRef) -
+      (gridPageSelector(apiRef) * gridPageSizeSelector(apiRef) +
+        params.renderContext.lastRowIndex);
+    if (
+      !fetching &&
+      !noMoreData &&
+      distance < 3 &&
+      distance >= 0 &&
+      params.renderContext.lastRowIndex > 0 &&
+      !(
+        gridExpandedRowCountSelector(apiRef) > 10 &&
+        gridExpandedRowCountSelector(apiRef) < 0
+      )
+    ) {
+      setFetching(true);
+      setNoMoreData(false);
+      const data = await getIssue(10, currentPage + 1);
+      setIssue((prev) => [...prev, ...data]);
     }
+    setCurrentPageSize(gridExpandedRowCountSelector(apiRef));
   };
 
-  var debounce = _.debounce(handleScroll, 100, {
-    leading: false,
-    trailing: true,
-  });
+  var throttle = _.throttle(handleScroll, 1000, { leading: true });
 
-  useGridApiEventHandler(apiRef, "scrollPositionChange", debounce, "once");
+  useGridApiEventHandler(apiRef, "scrollPositionChange", throttle, "once");
   return (
     <GridToolbarContainer>
       <GridToolbarColumnsButton />
@@ -203,3 +191,42 @@ export function CustomNoRowsOverlay() {
     </StyledGridOverlay>
   );
 }
+
+const getBackgroundColor = (color, mode) =>
+  mode === "dark" ? darken(color, 0.7) : lighten(color, 0.7);
+
+const getHoverBackgroundColor = (color, mode) =>
+  mode === "dark" ? darken(color, 0.6) : lighten(color, 0.6);
+
+const getSelectedBackgroundColor = (color, mode) =>
+  mode === "dark" ? darken(color, 0.5) : lighten(color, 0.5);
+
+const getSelectedHoverBackgroundColor = (color, mode) =>
+  mode === "dark" ? darken(color, 0.4) : lighten(color, 0.4);
+
+export const StyledDataGrid = styled(DataGrid)(({ theme }) => ({
+  "& .super-app-theme--chosen": {
+    backgroundColor: getBackgroundColor(
+      theme.palette.info.main,
+      theme.palette.mode
+    ),
+    "&:hover": {
+      backgroundColor: getHoverBackgroundColor(
+        theme.palette.info.main,
+        theme.palette.mode
+      ),
+    },
+    "&.Mui-selected": {
+      backgroundColor: getSelectedBackgroundColor(
+        theme.palette.info.main,
+        theme.palette.mode
+      ),
+      "&:hover": {
+        backgroundColor: getSelectedHoverBackgroundColor(
+          theme.palette.info.main,
+          theme.palette.mode
+        ),
+      },
+    },
+  },
+}));

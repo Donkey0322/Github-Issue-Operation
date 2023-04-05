@@ -19,7 +19,6 @@ import {
   IconButton,
   CircularProgress,
   Popover,
-  Backdrop,
 } from "@mui/material";
 import PopupState, { bindTrigger, bindPopover } from "material-ui-popup-state";
 import BorderColorRoundedIcon from "@mui/icons-material/BorderColorRounded";
@@ -60,16 +59,15 @@ const Modal = ({ rawData, setOpen, open, setRawData }) => {
 
   const [editMode, setEditMode] = useState(0);
   const [editData, setEditData] = useState(false);
-  const [submitLoad, setSubmitLoad] = useState(false);
   const {
     updateIssue,
-    setNoMoreData,
     getIssue,
     currentPage,
     setIssue,
     generateData,
     fetching,
     setFetching,
+    setNoMoreData,
   } = useGit();
 
   useEffect(() => {
@@ -127,10 +125,10 @@ const Modal = ({ rawData, setOpen, open, setRawData }) => {
       }
       return;
     }
-    setSubmitLoad(true);
+    setFetching(true);
     await updateIssue(repo, number, { title, body, labels: [label] });
     setRawData(editData);
-    setSubmitLoad(false);
+    setFetching(false);
   };
 
   const handleCancel = () => {
@@ -141,21 +139,15 @@ const Modal = ({ rawData, setOpen, open, setRawData }) => {
   const handleDelete = async () => {
     const { title, body, label, repo, number } = editData;
     setFetching(true);
+    setNoMoreData(false);
     const deleteData = await updateIssue(repo, number, {
       title,
       body,
       labels: [label],
       state: "closed",
     });
-    const data = await getIssue(
-      (currentPage - 1) * 10 + 1 <= 11 ? 11 : (currentPage - 1) * 10 + 1,
-      1
-    );
-    console.log(data);
-    console.log(data.filter((m) => m.id !== generateData(deleteData).id));
+    const data = await getIssue(currentPage * 10 + 1, 1);
     setIssue(data.filter((m) => m.id !== generateData(deleteData).id));
-    setFetching(false);
-    console.log(data);
     handleClose();
   };
 
@@ -248,7 +240,7 @@ const Modal = ({ rawData, setOpen, open, setRawData }) => {
         onClose={handleClose}
         TransitionComponent={Transition}
         fullWidth={true}
-        maxWidth={"md"}
+        maxWidth={"sm"}
       >
         <Stack
           direction="row"

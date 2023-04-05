@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import {
   Button,
   Dialog,
@@ -13,7 +13,7 @@ import {
   TextField,
   Typography,
   Stack,
-  CircularProgress,
+  Tooltip,
 } from "@mui/material";
 import LoadingButton from "@mui/lab/LoadingButton";
 import PropTypes from "prop-types";
@@ -67,6 +67,7 @@ const Newitem = ({ setOpen, open }) => {
     setIssue,
     generateData,
     setNoMoreData,
+    noMoreData,
   } = useGit();
 
   const handleClose = () => {
@@ -133,14 +134,11 @@ const Newitem = ({ setOpen, open }) => {
       return;
     }
     setSubmitLoad(true);
-
-    // setNoMoreData(false);
+    if (!noMoreData) {
+      setNoMoreData(false);
+    }
     const newdata = await createIssue(repo, { title, body, labels: [label] });
-    const data = await getIssue(
-      (currentPage - 1) * 10 - 1 <= 9 ? 9 : (currentPage - 1) * 10 + 1,
-      1
-    );
-    console.log(data);
+    const data = await getIssue(currentPage * 10 - 1, 1);
     setIssue([generateData(newdata), ...data]);
     setSubmitLoad(false);
     setNewData({
@@ -169,20 +167,27 @@ const Newitem = ({ setOpen, open }) => {
       >
         <FormControl sx={{ minWidth: 100 }}>
           <InputLabel id="category-select-label">Repo</InputLabel>
-          <Select
-            name="repo"
-            label="Repo"
-            value={newData.repo}
-            autoWidth
-            onChange={handleEditChange}
-            error={Boolean(errors?.repo)}
+          <Tooltip
+            title="Please create a public repository first"
+            disableFocusListener={true}
+            disableHoverListener={repo?.length !== 0}
           >
-            {repo.map((r, index) => (
-              <MenuItem value={r} key={index}>
-                {r}
-              </MenuItem>
-            ))}
-          </Select>
+            <Select
+              name="repo"
+              label="Repo"
+              value={newData.repo}
+              autoWidth
+              onChange={handleEditChange}
+              error={Boolean(errors?.repo)}
+              disabled={repo?.length === 0}
+            >
+              {repo?.map((r, index) => (
+                <MenuItem value={r} key={index}>
+                  {r}
+                </MenuItem>
+              ))}
+            </Select>
+          </Tooltip>
           {errors?.repo && <HelperText color="error">{errors.repo}</HelperText>}
         </FormControl>
       </Stack>
@@ -250,25 +255,6 @@ const Newitem = ({ setOpen, open }) => {
           </Button>
         )}
       </DialogActions>
-      {/* <Dialog
-        open={submitLoad}
-        // onClose={handleClose}
-        TransitionComponent={Transition}
-        fullWidth={true}
-        maxWidth={"md"}
-        // sx={{ background: "black" }}
-        PaperComponent={Stack}
-        PaperProps={{
-          style: {
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-            height: "200px",
-          },
-        }}
-      >
-        <CircularProgress />
-      </Dialog> */}
     </Dialog>
   );
 };

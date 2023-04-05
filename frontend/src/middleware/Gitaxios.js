@@ -7,7 +7,6 @@ export async function getAccessToken(code) {
   const { data } = await instance.get("/getAccessToken", {
     params: { client_id, client_secret, code },
   });
-  console.log(data);
   return data;
 }
 export async function getIssue(token, user, per_page = 10, page = 1) {
@@ -50,7 +49,6 @@ export const updateIssue = async (
   issue_number,
   updated_data
 ) => {
-  console.log("Hi", repo, issue_number, updated_data);
   const { data } = await instance.get("/updateIssue", {
     params: { user, repo, issue_number, updated_data },
     headers: {
@@ -61,7 +59,6 @@ export const updateIssue = async (
 };
 
 export const createIssue = async (token, user, repo, new_data) => {
-  console.log(repo, new_data);
   const { data } = await instance.get("/createIssue", {
     params: { user, repo, new_data },
     headers: {

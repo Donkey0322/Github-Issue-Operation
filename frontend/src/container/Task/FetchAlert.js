@@ -9,27 +9,34 @@ import {
 } from "@mui/material";
 import { useGit } from "../hook/useGit";
 
-export default function AlertDialog({ open }) {
+export default function AlertDialog() {
   const {
     setFetching,
     getIssue,
     setIssue,
-    setCurrentPage,
     currentPage,
     noMoreData,
     currentPageSize,
+    setNoMoreData,
+    fetching,
   } = useGit();
 
   const handleYes = async () => {
     setFetching(true);
-    const data = await getIssue(10, currentPage);
+    setNoMoreData(false);
+    const data = await getIssue(10, currentPage + 1);
     setIssue((prev) => [...prev, ...data]);
   };
 
   return (
     <div>
       <Dialog
-        open={open && !noMoreData && currentPageSize < 10}
+        open={
+          !noMoreData &&
+          currentPageSize < 10 &&
+          currentPageSize > 0 &&
+          !fetching
+        }
         aria-labelledby="alert-dialog-title"
         aria-describedby="alert-dialog-description"
       >
