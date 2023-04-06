@@ -54,7 +54,8 @@ yarn backend
 1. 註冊功能：使用 GitHub 帳號登入，在 http://localhost:3000 登入後會得到一組 code，請稍候等待系統登入。<br>
    **Except Handling:** 在登入後就不允許再進入登入頁面。
 2. 基本操作：在 http://localhost:3000/task 中會自動匯入 10 筆 issues，可以點選打開閱讀詳細內容或進行編輯。<br>
-   **Except Handling:** 未登入前不允許進入該頁面。
+   **Except Handling:** 未登入前不允許進入該頁面。<br>
+   **Note:** 若原先沒有設定 label，系統上會顯示為 _Open_。
 3. 更新 / 編輯 issue: 在詳細內容的 Modal 中可以點選右上角的編輯圖標，系統會切換到編輯模式。<br>
    **Except Handling:**
    - title 為必填欄位。
@@ -75,7 +76,6 @@ yarn backend
 5. 刪除 issue: 實質上是將 issue 在 GitHub 中改為 state=closed。<br>
    **Except Handling:** 跳出提示欄進行 2 次確認。在刪除後若原本顯示的欄位是 10 的倍數，則會維持原數目，反之則比原本少 1 筆（刪除的那一筆）。
 6. 獲取 issue: 將滾輪下滑到底部（感應器可能會偵測到倒數 1~2 筆），會自動索取 10 筆 issue，若沒有 issue 或未滿 10 筆則會跳出通知: _No more data_<br>
-
    **Note:** 這邊運用了 throttle 技術，避免滾輪在底部時偵測過快導致系統出錯，故反應時間可能會稍微遲 0.5 秒，在新增或是刪除時都會運用到這筆技術，故當滾輪在底部時可以觀察，若反應不好麻煩在重啟系統（刷新頁面）。
 
 7. 搜尋 issue: 在右上角的 search bar 裡輸入想查詢的字並按下 Enter，系統會查找所有 _title_, _body_, _repo_ 包含該關鍵字的 row，並 hightlight 提示。
