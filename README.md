@@ -75,8 +75,11 @@ yarn backend
 5. 刪除 issue: 實質上是將 issue 在 GitHub 中改為 state=closed。<br>
    **Except Handling:** 跳出提示欄進行 2 次確認。在刪除後若原本顯示的欄位是 10 的倍數，則會維持原數目，反之則比原本少 1 筆（刪除的那一筆）。
 6. 獲取 issue: 將滾輪下滑到底部（感應器可能會偵測到倒數 1~2 筆），會自動索取 10 筆 issue，若沒有 issue 或未滿 10 筆則會跳出通知: _No more data_<br>
+
    **Note:** 這邊運用了 throttle 技術，避免滾輪在底部時偵測過快導致系統出錯，故反應時間可能會稍微遲 0.5 秒，在新增或是刪除時都會運用到這筆技術，故當滾輪在底部時可以觀察，若反應不好麻煩在重啟系統（刷新頁面）。
+
 7. 搜尋 issue: 在右上角的 search bar 裡輸入想查詢的字並按下 Enter，系統會查找所有 _title_, _body_, _repo_ 包含該關鍵字的 row，並 hightlight 提示。
+
 8. MUI 提供:
 
    - 可以更改頁面筆數，預設為 50 筆。
@@ -94,3 +97,9 @@ yarn backend
 12. Error Handling: 簡單做了在任何錯誤下的 error page，但因為有各種千奇百怪的 error，所以並不會在 error 修正後（例如網路斷線恢復後）導向正常頁面，請手動調整回需求畫面。
 
 13. 其他還有一些防呆機制、在 issue 後台操作時的 UIUX 設計、沒有 Data 時的可愛設計等等。
+
+### Future Enhancement
+
+1. 可以再將操作流程更順暢，在偵測事件的防抖動做的更完善。
+2. 少許 warning 尚未解決，在 useEffect 中缺失的 dependency 和有些函數需用 useCallback 將其包裝。
+3. 特定的 error handling ，在發生 error 時可以採用補救措施。
