@@ -18,7 +18,7 @@
 1. 在此目錄下 `yarn install:all` 安裝所需 package<br>
 
 ```
-# under 2023-Frontend-Intern-Homework
+# under Github-Issue-Operation
 yarn install:all
 ```
 
@@ -39,7 +39,7 @@ yarn start
 4. Optional: 或者也可以在原目錄下 `yarn frontend` 和 `yarn backend`
 
 ```
-# under 2023-Frontend-Intern-Homework 兩個 terminal
+# under Github-Issue-Operation 兩個 terminal
 yarn frontend
 yarn backend
 ```
